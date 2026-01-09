@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Enhanced Download Manager
  * Description: 轻量级下载管理插件，支持可视化管理界面和下载统计功能
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Aikl
  * Author URI: https://github.com/TikatAK
  * Plugin URI: https://github.com/TikatAK/enhanced-download-manager
@@ -118,13 +118,22 @@ class Enhanced_Download_Manager {
             wp_die('下载链接未设置', '下载错误', array('response' => 400));
         }
 
-        // 增加下载计数
-        $current_count = (int) get_post_meta($download_id, '_dlm_download_count', true);
-        $new_count = $current_count + 1;
-        update_post_meta($download_id, '_dlm_download_count', $new_count);
+        // 防止重复计数：使用 transient 作为分布式锁
+        $transient_key = 'dlm_lock_' . $download_id . '_' . md5($_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT']);
 
-        // 可选：添加调试日志（生产环境可删除）
-        // error_log("Download count for ID {$download_id}: {$current_count} -> {$new_count}");
+        // 检查当前请求是否已经计数过
+        if (!get_transient($transient_key)) {
+            // 设置 3 秒的锁，防止快速重复点击
+            set_transient($transient_key, true, 3);
+
+            // 增加下载计数
+            $current_count = (int) get_post_meta($download_id, '_dlm_download_count', true);
+            $new_count = $current_count + 1;
+            update_post_meta($download_id, '_dlm_download_count', $new_count);
+
+            // 可选：取消注释下面的行以启用调试日志
+            // error_log("Download count for ID {$download_id}: {$current_count} -> {$new_count} [IP: {$_SERVER['REMOTE_ADDR']}]");
+        }
 
         // 重定向到实际文件
         wp_redirect($file_url, 302);

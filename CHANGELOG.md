@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-01-10
+
+### Fixed
+- 🐛 修复服务器环境下下载计数可能重复递增的问题
+- 🔒 实现基于 Transient API 的防重复计数机制
+- 🔑 添加 IP + User Agent 唯一性识别，防止重复请求
+
+### Improved
+- ⚡ 优化防重复机制，支持分布式服务器环境
+- ⏱️ 添加 3 秒锁定期，防止快速连续点击导致重复计数
+- 📝 改进调试日志（默认关闭，可选启用）
+- 🧹 移除不必要的临时文件和注释
+
 ## [1.0.0] - 2026-01-09
 
 ### Added
