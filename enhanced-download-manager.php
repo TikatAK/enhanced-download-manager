@@ -123,6 +123,9 @@ class Enhanced_Download_Manager {
         $new_count = $current_count + 1;
         update_post_meta($download_id, '_dlm_download_count', $new_count);
 
+        // 可选：添加调试日志（生产环境可删除）
+        // error_log("Download count for ID {$download_id}: {$current_count} -> {$new_count}");
+
         // 重定向到实际文件
         wp_redirect($file_url, 302);
         exit;
@@ -497,16 +500,17 @@ class Enhanced_Download_Manager {
 
                 nodesToReplace.forEach(function(textNode) {
                     var content = textNode.textContent;
-                    var regex = /\[download\s+id=["']?(\d+)["']?\]/g;
 
-                    if (regex.test(content)) {
-                        content = content.replace(/\[download\s+id=["']?(\d+)["']?\]/g, function(match, id) {
-                            var url = '<?php echo home_url('/'); ?>?dlm_download=' + id;
-                            return '<a href="' + url + '" class="dlm-download-link" rel="noopener">下载文件</a>';
-                        });
+                    // 直接替换，不使用test()避免正则状态问题
+                    var newContent = content.replace(/\[download\s+id=["']?(\d+)["']?\]/g, function(match, id) {
+                        var url = '<?php echo home_url('/'); ?>?dlm_download=' + id;
+                        return '<a href="' + url + '" class="dlm-download-link" rel="noopener">下载文件</a>';
+                    });
 
+                    // 只在内容改变时才替换节点
+                    if (newContent !== content) {
                         var wrapper = document.createElement('span');
-                        wrapper.innerHTML = content;
+                        wrapper.innerHTML = newContent;
                         textNode.parentNode.replaceChild(wrapper, textNode);
                     }
                 });
