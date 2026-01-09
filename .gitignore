@@ -1,0 +1,27 @@
+# WordPress
+.DS_Store
+Thumbs.db
+
+# Development files
+*.log
+*.tmp
+*~
+
+# Test files
+test-*.php
+debug-*.php
+lookme.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# macOS
+.AppleDouble
+.LSOverride
+
+# Windows
+ehthumbs.db
+Desktop.ini
